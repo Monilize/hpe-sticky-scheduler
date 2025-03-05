@@ -1,0 +1,33 @@
+// priority colors
+.priority {
+
+    // text colors
+    &-text {
+        &-high {
+            color: var(--c-priority-high);
+        }
+
+        &-medium {
+            color: var(--c-priority-medium);
+        }
+
+        &-low {
+            color: var(--c-priority-low);
+        }
+    }
+
+    // background colors
+    &-bg {
+        &-high {
+            background-color: var(--c-priority-high-l);
+        }
+
+        &-medium {
+            background-color: var(--c-priority-medium-l);
+        }
+
+        &-low {
+            background-color: var(--c-priority-low-l);
+        }
+    }
+}

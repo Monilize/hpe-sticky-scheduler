@@ -1,9 +1,10 @@
-import "./assets/scss/app.scss";
+import StickyNotes from "./components/stickyNotes";
 
 function App() {
 
   return (
     <div>
+      <StickyNotes />
     </div>
   )
 }

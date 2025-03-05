@@ -1,1 +1,15 @@
-@import "tailwindcss";
+@import url(./_stickyNotes.scss);
+@import url(./_colors.scss);
+
+:root {
+    // Priority colors
+    --c-priority-low: #7be0ad;
+    --c-priority-medium: #f2cd60;
+    --c-priority-high: #f25757;
+
+    // Lighter priority colors 
+    --c-priority-low-l: #9aecc3;
+    --c-priority-medium-l: #f1da93;
+    --c-priority-high-l: #f18686;
+
+}

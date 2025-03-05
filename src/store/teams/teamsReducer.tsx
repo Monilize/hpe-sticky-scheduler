@@ -1,10 +1,16 @@
 import { createReducer } from "@reduxjs/toolkit";
 import { addTeam, removeTeam, updateTeam } from "./teamsActions";
 
+interface TeamMember {
+  id: string,
+  name: string;
+  color: string;
+}
+
 interface Team {
   id: string;
   name: string;
-  color: string;
+  team_members: TeamMember[];
 }
 
 interface TeamsState {
@@ -12,7 +18,16 @@ interface TeamsState {
 }
 
 const initialState: TeamsState = {
-  teams: [],
+  teams: [ // Adding test data
+    {
+      id: "1",
+      name: "Team Alpha",
+      team_members: [
+        { id: "1", name: "Jane Doe", color: "#adf7b6" },
+        { id: "2", name: "John Smith", color: "#baf2e9" }
+      ]
+    }
+  ],
 };
 
 const teamsReducer = createReducer(initialState, (builder) => {

@@ -1,12 +1,14 @@
 export interface StickyNote {
     id: string;
-    priority: "low" | "medium" | "high";
+    priority: 'low' | 'medium' | 'high';
     task: string;
     completed: boolean;
-    color: string;
     assignee: string;
+    position: { x: number; y: number };
 }
+
 
 export interface StickyNotesState {
     notes: StickyNote[];
+    filter: string | null;
 }
