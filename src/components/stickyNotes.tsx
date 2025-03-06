@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
-import { toggleStickyNote, updateStickyNote } from "../store/stickyNotes/stickyNotesActions";
+import { toggleStickyNote, updateStickyNote, removeStickyNote } from "../store/stickyNotes/stickyNotesActions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
+import { FiEdit, FiTrash, FiCheck } from "react-icons/fi";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "./ui/textarea";
+import { darkenColor } from "@/lib/utils";
 
 interface DragState {
     noteId: string | null;
@@ -25,6 +35,8 @@ const StickyNotes: React.FC = () => {
     });
     // State for continuously updating the current position during drag
     const [currentPos, setCurrentPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    // Track editing state for each note
+    const [editStates, setEditStates] = useState<{ [key: string]: boolean }>({});
 
     // Helper to get the team member object by assignee id
     const getAssignee = (assigneeId: string) => {
@@ -33,6 +45,32 @@ const StickyNotes: React.FC = () => {
             if (member) return member;
         }
         return null;
+    };
+
+    const getAssignees = () => {
+        for (const team of teams) {
+            if (team.team_members) return team.team_members;
+        }
+        return [];
+    };
+
+    const updateNoteField = (noteId: string, field: string, newValue: string) => {
+        const noteToUpdate = notes.find((note) => note.id === noteId);
+        if (noteToUpdate) {
+            const updatedNote = { ...noteToUpdate, [field]: newValue };
+            dispatch(updateStickyNote(updatedNote));
+        }
+    };
+
+    const handleEditToggle = (noteId: string) => {
+        setEditStates((prevState) => ({
+            ...prevState,
+            [noteId]: !prevState[noteId],
+        }));
+    };
+
+    const handleDelete = (noteId: string) => {
+        dispatch(removeStickyNote(noteId));
     };
 
     // When mouse is pressed down on a sticky note, start dragging
@@ -79,33 +117,63 @@ const StickyNotes: React.FC = () => {
         };
     }, [dragState, currentPos, notes]);
 
-    // Utility: Darken a hex color by a percentage
-    const darkenColor = (hex: string, percent: number) => {
-        let num = parseInt(hex.slice(1), 16);
-        let amt = Math.round(2.55 * percent);
-        let r = (num >> 16) - amt;
-        let g = ((num >> 8) & 0x00ff) - amt;
-        let b = (num & 0x0000ff) - amt;
-        r = r < 0 ? 0 : r;
-        g = g < 0 ? 0 : g;
-        b = b < 0 ? 0 : b;
-        return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, "0")}`;
+    const renderEditableField = (noteId: string, field: string, value: string) => {
+        switch (field) {
+            case "assignee":
+                return (
+                    <Select value={value} onValueChange={(newAssignee) => updateNoteField(noteId, field, newAssignee)}>
+                        <SelectTrigger className="w-full mb-2 mt-2">
+                            <SelectValue placeholder="Select Assignee" />
+                        </SelectTrigger>
+                        <SelectContent className="SelectContent">
+                            {getAssignees().map((assignee) => (
+                                <SelectItem key={assignee.id} value={assignee.id}>
+                                    {assignee.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                );
+            case "priority":
+                return (
+                    <Select value={value} onValueChange={(newPriority) => updateNoteField(noteId, field, newPriority)}>
+                        <SelectTrigger className="w-full mb-2 mt-2">
+                            <SelectValue placeholder="Select Priority" />
+                        </SelectTrigger>
+                        <SelectContent className="SelectContent">
+                            {["low", "medium", "high"].map((priority) => (
+                                <SelectItem key={priority} value={priority}>
+                                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                );
+            case "task":
+                return (
+                    <Textarea
+                        maxLength={40}
+                        defaultValue={value}
+                        placeholder="Add task title here..."
+                        onChange={(e) => updateNoteField(noteId, field, e.target.value)}
+                    />
+                );
+            default:
+                return <span>{value}</span>;
+        }
     };
 
     return (
-        <div
-            className="sticky-notes"
-        >
+        <div className="sticky-notes">
             {notes.map((note) => {
                 const assignee = getAssignee(note.assignee);
-                // If this note is currently being dragged, use the currentPos; otherwise, use the stored note position.
                 const isDragging = dragState.noteId === note.id;
                 const pos = isDragging ? currentPos : note.position;
 
                 return (
                     <div
                         key={note.id}
-                        className={`sticky-notes-position ${dragState.noteId === note.id ? "dragging" : ""}`}
+                        className={`sticky-notes-container sticky-notes-position ${isDragging ? "dragging" : ""}`}
                         onMouseDown={(e) => handleMouseDown(e, note.id, note.position)}
                         style={{
                             left: `${pos.x}px`,
@@ -113,7 +181,31 @@ const StickyNotes: React.FC = () => {
                             transition: isDragging ? "none" : "left 0.1s ease, top 0.1s ease",
                         }}
                     >
+                        <div className="sticky-notes-icons">
+                            {
+                                editStates[note.id] ? (
+                                    <FiCheck
+                                        className="sticky-notes-icon"
+                                        onClick={() => handleEditToggle(note.id)} // Toggle off edit mode
+                                    />
+                                ) : !note.completed && (
+                                    <FiEdit
+                                        className="sticky-notes-icon"
+                                        onClick={() => handleEditToggle(note.id)} // Toggle on edit mode
+                                    />
+                                )
+                            }
+
+                            <FiTrash
+                                className="sticky-notes-icon"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(note.id);
+                                }}
+                            />
+                        </div>
                         <Card
+                            className="sticky-notes-card"
                             style={{
                                 backgroundColor: assignee?.color || "#ccc",
                                 border: `1px solid ${darkenColor(assignee?.color || "#ccc", 20)}`,
@@ -124,15 +216,15 @@ const StickyNotes: React.FC = () => {
                             <CardContent style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
                                 <p>
                                     <b>Assignee: </b>
-                                    <span>{assignee ? assignee.name : "Unassigned"}</span>
+                                    {editStates[note.id] ? renderEditableField(note.id, "assignee", note.assignee) : assignee?.name || "Unassigned"}
                                 </p>
                                 <p>
                                     <b>Priority: </b>
-                                    <Badge variant={`priority_${note.priority}`}>{note.priority}</Badge>
+                                    {editStates[note.id] ? renderEditableField(note.id, "priority", note.priority) : <Badge variant={`priority_${note.priority}`}>{note.priority}</Badge>}
                                 </p>
                                 <p>
                                     <b>Task: </b>
-                                    <span>{note.task}</span>
+                                    {editStates[note.id] ? renderEditableField(note.id, "task", note.task ?? '') : note.task}
                                 </p>
                                 <p>
                                     <b>Completed: </b>

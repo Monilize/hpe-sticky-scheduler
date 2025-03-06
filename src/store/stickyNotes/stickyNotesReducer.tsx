@@ -43,7 +43,7 @@ const stickyNotesReducer = createReducer(initialState, (builder) => {
         .addCase(updateStickyNote, (state, action) => {
             const index = state.notes.findIndex((note) => note.id === action.payload.id);
             if (index !== -1) {
-                state.notes[index] = { ...state.notes[index], position: action.payload.position };
+                state.notes[index] = { ...state.notes[index], ...action.payload };
             }
         });
 });
