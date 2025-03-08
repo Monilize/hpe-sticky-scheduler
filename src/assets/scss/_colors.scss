@@ -30,4 +30,11 @@
             background-color: var(--c-priority-low-l);
         }
     }
+
+    // border colors
+    &-border {
+        &-high {
+            border: 1.5px solid var(--c-priority-high-l) !important;
+        }
+    }
 }

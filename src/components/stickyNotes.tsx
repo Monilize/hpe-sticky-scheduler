@@ -2,19 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { toggleStickyNote, updateStickyNote, removeStickyNote } from "../store/stickyNotes/stickyNotesActions";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { FiEdit, FiTrash, FiCheck } from "react-icons/fi";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "./ui/textarea";
 import { darkenColor } from "@/lib/utils";
+import Fields from "./Fields";
 
 interface DragState {
     noteId: string | null;
@@ -117,58 +108,13 @@ const StickyNotes: React.FC = () => {
         };
     }, [dragState, currentPos, notes]);
 
-    const renderEditableField = (noteId: string, field: string, value: string) => {
-        switch (field) {
-            case "assignee":
-                return (
-                    <Select value={value} onValueChange={(newAssignee) => updateNoteField(noteId, field, newAssignee)}>
-                        <SelectTrigger className="w-full mb-2 mt-2">
-                            <SelectValue placeholder="Select Assignee" />
-                        </SelectTrigger>
-                        <SelectContent className="SelectContent">
-                            {getAssignees().map((assignee) => (
-                                <SelectItem key={assignee.id} value={assignee.id}>
-                                    {assignee.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                );
-            case "priority":
-                return (
-                    <Select value={value} onValueChange={(newPriority) => updateNoteField(noteId, field, newPriority)}>
-                        <SelectTrigger className="w-full mb-2 mt-2">
-                            <SelectValue placeholder="Select Priority" />
-                        </SelectTrigger>
-                        <SelectContent className="SelectContent">
-                            {["low", "medium", "high"].map((priority) => (
-                                <SelectItem key={priority} value={priority}>
-                                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                );
-            case "task":
-                return (
-                    <Textarea
-                        maxLength={40}
-                        defaultValue={value}
-                        placeholder="Add task title here..."
-                        onChange={(e) => updateNoteField(noteId, field, e.target.value)}
-                    />
-                );
-            default:
-                return <span>{value}</span>;
-        }
-    };
-
     return (
         <div className="sticky-notes">
             {notes.map((note) => {
                 const assignee = getAssignee(note.assignee);
                 const isDragging = dragState.noteId === note.id;
                 const pos = isDragging ? currentPos : note.position;
+                const assignees = getAssignees();
 
                 return (
                     <div
@@ -205,7 +151,7 @@ const StickyNotes: React.FC = () => {
                             />
                         </div>
                         <Card
-                            className="sticky-notes-card"
+                            className={`sticky-notes-card ${note.priority == "high" ? "priority-border-high" : ""}`}
                             style={{
                                 backgroundColor: assignee?.color || "#ccc",
                                 border: `1px solid ${darkenColor(assignee?.color || "#ccc", 20)}`,
@@ -214,25 +160,47 @@ const StickyNotes: React.FC = () => {
                             }}
                         >
                             <CardContent style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
-                                <p>
-                                    <b>Assignee: </b>
-                                    {editStates[note.id] ? renderEditableField(note.id, "assignee", note.assignee) : assignee?.name || "Unassigned"}
-                                </p>
-                                <p>
-                                    <b>Priority: </b>
-                                    {editStates[note.id] ? renderEditableField(note.id, "priority", note.priority) : <Badge variant={`priority_${note.priority}`}>{note.priority}</Badge>}
-                                </p>
-                                <p>
-                                    <b>Task: </b>
-                                    {editStates[note.id] ? renderEditableField(note.id, "task", note.task ?? '') : note.task}
-                                </p>
-                                <p>
-                                    <b>Completed: </b>
-                                    <Checkbox
-                                        checked={note.completed}
-                                        onCheckedChange={() => dispatch(toggleStickyNote(note.id))}
-                                    />
-                                </p>
+                                <Fields
+                                    isFlex={editStates[note.id] ? false : true}
+                                    label="Assignee"
+                                    placeholder="-- Select assignee --"
+                                    fieldType={editStates[note.id] ? "select" : "paragraph"}
+                                    value={editStates[note.id] ? note.assignee : assignee?.name ?? ''}
+                                    options={assignees.map(member => ({
+                                        label: member.name,
+                                        value: member.id,
+                                    }))}
+                                    onValueChange={(newValue: any) => updateNoteField(note.id, "assignee", newValue)}
+                                />
+                                <Fields
+                                    highlightVariant={`highlight-priority-${note.priority}`}
+                                    isFlex={editStates[note.id] ? false : true}
+                                    placeholder="-- Select priority --"
+                                    label="Priority"
+                                    fieldType={editStates[note.id] ? "select" : "highlight"}
+                                    value={note?.priority ?? ''}
+                                    options={["low", "medium", "high"].map(member => ({
+                                        label: member,
+                                        value: member,
+                                    }))}
+                                    onValueChange={(newValue: any) => updateNoteField(note.id, "priority", newValue)}
+                                />
+                                <Fields
+                                    isFlex={editStates[note.id] ? false : true}
+                                    maxLength={64}
+                                    placeholder="Add task title..."
+                                    label="Task"
+                                    fieldType={editStates[note.id] ? 'textarea' : 'paragraph'}
+                                    value={note?.task ?? ''}
+                                    onValueChange={(newValue: any) => updateNoteField(note.id, "task", newValue)}
+                                />
+                                <Fields
+                                    isFlex={editStates[note.id] ? false : true}
+                                    label="Completed"
+                                    fieldType="checkbox"
+                                    value={note.completed}
+                                    onValueChange={() => dispatch(toggleStickyNote(note.id))}
+                                />
                             </CardContent>
                         </Card>
                     </div>

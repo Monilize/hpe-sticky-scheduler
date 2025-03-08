@@ -1,0 +1,38 @@
+.highlight {
+    margin: 0 -0.4em;
+    padding: 0.1em 0.4em;
+    border-radius: 0.8em 0.3em;
+    background: transparent;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+
+    // Default Highlight Color
+    background-image: linear-gradient(to right,
+            rgba(100, 65, 31, 0.1),
+            rgba(212, 163, 115, 0.7) 4%,
+            rgba(168, 109, 51, 0.3));
+
+    // Priorities Highlight Colors
+    &-priority {
+        &-low {
+            background-image: linear-gradient(to right,
+                    rgba(44, 60, 37, 0.1),
+                    rgba(111, 151, 92, 0.7) 4%,
+                    rgba(74, 101, 62, 0.3)) !important;
+        }
+
+        &-medium {
+            background-image: linear-gradient(to right,
+                    rgba(47, 64, 39, 0.1),
+                    rgba(210, 212, 98, 0.7) 4%,
+                    rgba(255, 225, 0, 0.3)) !important;
+        }
+
+        &-high {
+            background-image: linear-gradient(to right,
+                    rgba(141, 2, 0, 0.1),
+                    rgba(255, 99, 97, 0.7) 4%,
+                    rgba(236, 3, 0, 0.3)) !important;
+        }
+    }
+}
