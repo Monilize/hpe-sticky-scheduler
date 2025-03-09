@@ -11,6 +11,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <PersistGate
       persistor={persistor}
     >
+      {/* Designated area for adding sticky notes */}
+      <div id="designated-click-area" className='wireframe-background' style={{ height: '100vh', width: '100vw', zIndex: 0, position: 'absolute' }}></div>
       <App />
     </PersistGate>
   </Provider>

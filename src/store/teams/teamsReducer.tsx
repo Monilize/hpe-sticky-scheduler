@@ -1,48 +1,37 @@
 import { createReducer } from "@reduxjs/toolkit";
-import { addTeam, removeTeam, updateTeam } from "./teamsActions";
-
-interface TeamMember {
-  id: string,
-  name: string;
-  color: string;
-}
-
-interface Team {
-  id: string;
-  name: string;
-  team_members: TeamMember[];
-}
-
-interface TeamsState {
-  teams: Team[];
-}
+import { TeamsState } from "./teamsTypes";
+import { addTeamMember } from "./teamsActions";
+import { toast } from "sonner";
 
 const initialState: TeamsState = {
-  teams: [ // Adding test data
-    {
-      id: "1",
-      name: "Team Alpha",
-      team_members: [
-        { id: "1", name: "Jane Doe", color: "#adf7b6" },
-        { id: "2", name: "John Smith", color: "#baf2e9" }
-      ]
-    }
+  team_members: [
+    { id: "1", name: "John Smith", color: "#84dcc6" },
+    { id: "2", name: "Jana du Toit", color: "#b8b8ff" },
+    { id: "3", name: "Kathelo Mohapi", color: "#efe9ae" },
   ],
 };
 
 const teamsReducer = createReducer(initialState, (builder) => {
   builder
-    .addCase(addTeam, (state, action) => {
-      state.teams.push(action.payload);
-    })
-    .addCase(removeTeam, (state, action) => {
-      state.teams = state.teams.filter((team) => team.id !== action.payload);
-    })
-    .addCase(updateTeam, (state, action) => {
-      const index = state.teams.findIndex((t) => t.id === action.payload.id);
-      if (index !== -1) {
-        state.teams[index] = action.payload;
+    .addCase(addTeamMember, (state, action) => {
+      const newMember = action.payload;
+      // Check if a member with the same name already exists (case-insensitive)
+      const exists = state.team_members.some(
+        (member) => member.name.toLowerCase() === newMember.name.toLowerCase()
+      );
+
+      if (exists) {
+        toast.error("Oops!", {
+          description: "Oops, the team member already exists.",
+        })
+
+      } else {
+        state.team_members.push(newMember);
+        toast.success("Success!", {
+          description: "Team member added successfully.",
+        })
       }
+
     });
 });
 

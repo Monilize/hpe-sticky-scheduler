@@ -1,14 +1,5 @@
-import { createAction } from '@reduxjs/toolkit';
-import { ADD_TEAM, REMOVE_TEAM, UPDATE_TEAM } from './teamsTypes';
+import { createAction } from "@reduxjs/toolkit";
+import { TeamMember } from "./teamsTypes";
 
-export const addTeam = createAction(ADD_TEAM, (team) => ({
-    payload: team,
-}));
-
-export const removeTeam = createAction(REMOVE_TEAM, (teamId) => ({
-    payload: teamId,
-}));
-
-export const updateTeam = createAction(UPDATE_TEAM, (team) => ({
-    payload: team,
-}));
+// Define actions separately
+export const addTeamMember = createAction<TeamMember>("teams/addTeamMember");

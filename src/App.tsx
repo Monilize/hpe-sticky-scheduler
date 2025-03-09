@@ -1,21 +1,23 @@
 import StickyNotes from "./components/stickyNotes";
 import FilterStickyNotes from "./components/FilterStickyNotes";
 import AddStickyNote from "./components/AddStickyNote";
+import AddTeamMember from "./components/AddTeamMember";
+import { Toaster } from "@/components/ui/sonner"
 
 function App() {
 
   return (
-    <div className="wireframe-background">
-      <div className="mx-auto p-6 block justify-center">
-        <div className="flex flex-wrap items-stretch -mx-4">
-          <div className="flex-5 p-4">
-            <h1>Sticky Scheduler</h1>
+    <div style={{ zIndex: 1 }} className="relative">
+      <Toaster richColors closeButton position="top-right" />
+      <div className="mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch ">
+          <div className="p-4 flex items-center md:justify-center lg:justify-start">
+            <h1 className="text-xl font-semibold">Sticky Scheduler</h1>
           </div>
-          <div className="flex-1 p-4">
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <FilterStickyNotes />
-          </div>
-          <div className="flex-[0.5] p-4">
             <AddStickyNote />
+            <AddTeamMember />
           </div>
         </div>
       </div>

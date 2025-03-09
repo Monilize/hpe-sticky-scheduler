@@ -30,6 +30,10 @@
             display: flex;
             z-index: 10;
             gap: 10px;
+
+            svg {
+                width: 18px;
+            }
         }
 
         &-position {

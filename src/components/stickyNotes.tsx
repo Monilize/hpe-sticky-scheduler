@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { toggleStickyNote, updateStickyNote, removeStickyNote } from "../store/stickyNotes/stickyNotesActions";
 import { Card, CardContent } from "@/components/ui/card";
-import { FiEdit, FiTrash, FiCheck } from "react-icons/fi";
+import { Pencil, Check, Trash } from "lucide-react"
 import { darkenColor } from "@/lib/utils";
 import Fields from "./Fields";
 
@@ -16,7 +16,7 @@ interface DragState {
 const StickyNotes: React.FC = () => {
     const dispatch = useDispatch();
     const notes = useSelector((state: RootState) => state.stickyNotes.notes);
-    const teams = useSelector((state: RootState) => state.teams.teams);
+    const teams = useSelector((state: RootState) => state.teams.team_members);
     const filteredNotes = useSelector((state: RootState) => state.stickyNotes.filtered_sticky_notes);
 
     // State to track the current dragging note and mouse offset relative to note position
@@ -35,18 +35,8 @@ const StickyNotes: React.FC = () => {
 
     // Helper to get the team member object by assignee id
     const getAssignee = (assigneeId: string) => {
-        for (const team of teams) {
-            const member = team.team_members.find((member) => member.id === assigneeId);
-            if (member) return member;
-        }
-        return null;
-    };
-
-    const getAssignees = () => {
-        for (const team of teams) {
-            if (team.team_members) return team.team_members;
-        }
-        return [];
+        const member = teams.find((member) => member.id === assigneeId);
+        if (member) return member;
     };
 
     const updateNoteField = (noteId: string, field: string, newValue: string) => {
@@ -129,7 +119,6 @@ const StickyNotes: React.FC = () => {
                 const assignee = getAssignee(note.assignee);
                 const isDragging = dragState.noteId === note.id;
                 const pos = isDragging ? currentPos : note.position;
-                const assignees = getAssignees();
 
                 return (
                     <div
@@ -146,19 +135,19 @@ const StickyNotes: React.FC = () => {
                         <div className="sticky-notes-icons">
                             {
                                 editStates[note.id] ? (
-                                    <FiCheck
+                                    <Check
                                         className="sticky-notes-icon"
                                         onClick={() => handleEditToggle(note.id)} // Toggle off edit mode
                                     />
                                 ) : !note.completed && (
-                                    <FiEdit
+                                    <Pencil
                                         className="sticky-notes-icon"
                                         onClick={() => handleEditToggle(note.id)} // Toggle on edit mode
                                     />
                                 )
                             }
 
-                            <FiTrash
+                            <Trash
                                 className="sticky-notes-icon"
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -171,7 +160,7 @@ const StickyNotes: React.FC = () => {
                             style={{
                                 backgroundColor: assignee?.color || "#ccc",
                                 border: `1px solid ${darkenColor(assignee?.color || "#ccc", 20)}`,
-                                opacity: note.completed ? 0.5 : 1,
+                                opacity: note.completed ? 0.65 : 1,
                                 padding: "10px",
                             }}
                         >
@@ -179,10 +168,10 @@ const StickyNotes: React.FC = () => {
                                 <Fields
                                     isFlex={editStates[note.id] ? false : true}
                                     label="Assignee"
-                                    placeholder="-- Select assignee --"
-                                    fieldType={editStates[note.id] ? "select" : "paragraph"}
+                                    placeholder="Search team member..."
+                                    fieldType={editStates[note.id] ? "select-search" : "paragraph"}
                                     value={editStates[note.id] ? note.assignee : assignee?.name ?? ''}
-                                    options={assignees.map(member => ({
+                                    options={teams.map(member => ({
                                         label: member.name,
                                         value: member.id,
                                     }))}

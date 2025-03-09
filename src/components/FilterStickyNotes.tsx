@@ -5,32 +5,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 
 const FilterStickyNotes: React.FC = () => {
-    const teams = useSelector((state: RootState) => state.teams.teams);
+    const teams = useSelector((state: RootState) => state.teams.team_members);
     const filtered = useSelector((state: RootState) => state.stickyNotes.filter);
     const dispatch = useDispatch();
-
-    const getAssignees = () => {
-        for (const team of teams) {
-            if (team.team_members) return team.team_members;
-        }
-        return [];
-    };
 
     const updateFilter = (filter: string) => {
         dispatch(updateFilteredStickyNotes(filter));
     };
 
-    const assignees = getAssignees();
-
     return (
         <Fields
             isFlex={true}
-            placeholder="-- Select Team Members --"
-            fieldType="select"
+            placeholder="Search members..."
+            fieldType="select-search"
             value={filtered}
             options={[
                 { label: "All Team Members", value: 'all' },
-                ...assignees.map(member => ({
+                ...teams.map(member => ({
                     label: member.name,
                     value: member.id,
                 })),
