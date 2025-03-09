@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Pencil, Check, Trash } from "lucide-react"
 import { darkenColor } from "@/lib/utils";
 import Fields from "./Fields";
+import AlertDialog from "./AlertDialog";  // Import the AlertDialog component
 
 interface DragState {
     noteId: string | null;
@@ -18,6 +19,8 @@ const StickyNotes: React.FC = () => {
     const notes = useSelector((state: RootState) => state.stickyNotes.notes);
     const teams = useSelector((state: RootState) => state.teams.team_members);
     const filteredNotes = useSelector((state: RootState) => state.stickyNotes.filtered_sticky_notes);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
     // State to track the current dragging note and mouse offset relative to note position
     const [dragState, setDragState] = useState<DragState>({
@@ -55,7 +58,21 @@ const StickyNotes: React.FC = () => {
     };
 
     const handleDelete = (noteId: string) => {
-        dispatch(removeStickyNote(noteId));
+        setNoteToDelete(noteId); // Set the note to be deleted
+        setOpenDialog(true);
+    };
+
+    const confirmDelete = () => {
+        if (noteToDelete) {
+            dispatch(removeStickyNote(noteToDelete));
+            setOpenDialog(false); // Close the dialog after deletion
+            setNoteToDelete(null); // Clear the note ID
+        }
+    };
+
+    const cancelDelete = () => {
+        setOpenDialog(false); // Close the dialog without deletion
+        setNoteToDelete(null); // Clear the note ID
     };
 
     // When mouse is pressed down on a sticky note, start dragging
@@ -211,6 +228,13 @@ const StickyNotes: React.FC = () => {
                     </div>
                 );
             })}
+            <AlertDialog
+                open={openDialog}
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+                heading="Are you sure?"
+                description="This action cannot be undone."
+            />
         </div>
     );
 };
