@@ -9,7 +9,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "./ui/button";
 
 interface AlertDialogProps {
     open: boolean;
@@ -29,9 +28,7 @@ const AlertDialog: React.FC<AlertDialogProps> = ({ open, heading, description, o
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={onConfirm}>
-                        <Button variant="dark">Confirm</Button>
-                    </AlertDialogAction>
+                    <AlertDialogAction className="bg-black text-white" onClick={onConfirm}>Confirm</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </Dialog>
