@@ -23,6 +23,7 @@ const AddStickyNote: React.FC = () => {
     const [priority, setPriority] = useState<"low" | "medium" | "high">("low");
     const [assignee, setAssignee] = useState('1');
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null);
 
     const submitNewSticky = () => {
         if (!task || !priority || !assignee) {
@@ -38,22 +39,31 @@ const AddStickyNote: React.FC = () => {
             priority: priority ?? 'low',
             assignee: assignee,
             completed: false,
-            position: { x: 0, y: 0 }
+            position: clickPosition ?? { x: 0, y: 0 }
         }));
         // Revert to default after submission
         setTask('');
         setPriority('low');
         setAssignee('1');
+        setClickPosition(null);
         setDrawerOpen(false);
     };
 
     useEffect(() => {
         // Function to handle clicks on designated areas
-        const handleDesignatedAreaClick = () => {
-            // Ensure the drawer isn't already open
-            if (!drawerOpen) {
-                setDrawerOpen(true);
-            }
+        const handleDesignatedAreaClick = (event: any) => {
+            // Get the bounding rectangle of the designated area
+            const rect = event.currentTarget.getBoundingClientRect();
+
+            // Calculate click position relative to the designated area
+            const x = event.clientX - rect.left - 150;
+            const y = event.clientY - rect.top - 175;
+
+            // Store the click position in state
+            setClickPosition({ x, y });
+
+            // Open the drawer
+            setDrawerOpen(true);
         };
 
         // Select the designated area where clicks should open the drawer

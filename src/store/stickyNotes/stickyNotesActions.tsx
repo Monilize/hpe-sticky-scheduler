@@ -8,3 +8,4 @@ export const toggleStickyNote = createAction<string>("stickyNotes/toggleStickyNo
 export const updateStickyNote = createAction<StickyNote>("stickyNotes/updateStickyNote");
 export const updateStickyNotePosition = createAction<{ id: string; x: number; y: number }>("stickyNotes/updatePosition");
 export const updateFilteredStickyNotes = createAction<string>("stickyNotes/updateFilteredStickyNotes");
+export const updateSearchFilteredStickyNotes = createAction<StickyNote[]>("stickyNotes/updateSearchFilteredStickyNotes");

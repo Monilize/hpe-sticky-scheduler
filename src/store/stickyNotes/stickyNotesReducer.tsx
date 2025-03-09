@@ -1,6 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
 import { StickyNotesState } from "./stickyNotesTypes";
-import { addStickyNote, removeStickyNote, toggleStickyNote, updateStickyNote, updateFilteredStickyNotes } from "./stickyNotesActions";
+import { addStickyNote, removeStickyNote, toggleStickyNote, updateStickyNote, updateFilteredStickyNotes, updateSearchFilteredStickyNotes } from "./stickyNotesActions";
 import { toast } from "sonner";
 
 const initialState: StickyNotesState = {
@@ -151,6 +151,9 @@ const stickyNotesReducer = createReducer(initialState, (builder) => {
 
             // Filter notes based on the selected assignee
             state.filtered_sticky_notes = state.notes.filter((note) => note.assignee === action.payload);
+        })
+        .addCase(updateSearchFilteredStickyNotes, (state, action) => {
+            state.filtered_sticky_notes = action.payload.length > 0 ? action.payload : state.notes;
         });
 });
 
