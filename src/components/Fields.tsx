@@ -24,7 +24,7 @@ const Fields: React.FC<FieldsProps> = ({ label, placeholder, fieldType, value, o
             case "select":
                 return (
                     <Select value={value} onValueChange={onValueChange}>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full bg-white">
                             <SelectValue placeholder={placeholder ?? ''} />
                         </SelectTrigger>
                         <SelectContent className="SelectContent">

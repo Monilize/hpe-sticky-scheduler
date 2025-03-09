@@ -17,6 +17,7 @@ const StickyNotes: React.FC = () => {
     const dispatch = useDispatch();
     const notes = useSelector((state: RootState) => state.stickyNotes.notes);
     const teams = useSelector((state: RootState) => state.teams.teams);
+    const filteredNotes = useSelector((state: RootState) => state.stickyNotes.filtered_sticky_notes);
 
     // State to track the current dragging note and mouse offset relative to note position
     const [dragState, setDragState] = useState<DragState>({
@@ -28,6 +29,9 @@ const StickyNotes: React.FC = () => {
     const [currentPos, setCurrentPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     // Track editing state for each note
     const [editStates, setEditStates] = useState<{ [key: string]: boolean }>({});
+    // Adjust the sticky note z-index when dragged
+    const [noteSize, setNoteSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+    const [zIndex, setZIndex] = useState(1); // To ensure dragged notes appear on top
 
     // Helper to get the team member object by assignee id
     const getAssignee = (assigneeId: string) => {
@@ -70,20 +74,31 @@ const StickyNotes: React.FC = () => {
         noteId: string,
         notePosition: { x: number; y: number }
     ) => {
+        const noteElement = e.currentTarget.getBoundingClientRect(); // Get the note's actual size
         const offsetX = e.clientX - notePosition.x;
         const offsetY = e.clientY - notePosition.y;
+
         setDragState({ noteId, offsetX, offsetY });
-        // Initialize current position with the note's position
         setCurrentPos({ x: notePosition.x, y: notePosition.y });
+        setZIndex((prev) => prev + 1); // Increase z-index when dragging starts
+
+        // Save the note's width and height for boundary constraints
+        setNoteSize({ width: noteElement.width, height: noteElement.height });
     };
+
 
     // Update the dragged note's current position as the mouse moves
     const handleMouseMove = (e: MouseEvent) => {
         if (dragState.noteId) {
-            setCurrentPos({
-                x: e.clientX - dragState.offsetX,
-                y: e.clientY - dragState.offsetY,
-            });
+            // Get screen dimensions
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // Dynamically constrain movement within screen boundaries
+            const newX = Math.min(Math.max(0, e.clientX - dragState.offsetX), screenWidth - noteSize.width);
+            const newY = Math.min(Math.max(0, e.clientY - dragState.offsetY), screenHeight - noteSize.height);
+
+            setCurrentPos({ x: newX, y: newY });
         }
     };
 
@@ -110,7 +125,7 @@ const StickyNotes: React.FC = () => {
 
     return (
         <div className="sticky-notes">
-            {notes.map((note) => {
+            {filteredNotes.map((note) => {
                 const assignee = getAssignee(note.assignee);
                 const isDragging = dragState.noteId === note.id;
                 const pos = isDragging ? currentPos : note.position;
@@ -124,6 +139,7 @@ const StickyNotes: React.FC = () => {
                         style={{
                             left: `${pos.x}px`,
                             top: `${pos.y}px`,
+                            zIndex: isDragging ? zIndex : 1, // Bring to front when dragging
                             transition: isDragging ? "none" : "left 0.1s ease, top 0.1s ease",
                         }}
                     >

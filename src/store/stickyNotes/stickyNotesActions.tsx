@@ -7,3 +7,4 @@ export const removeStickyNote = createAction<string>("stickyNotes/removeStickyNo
 export const toggleStickyNote = createAction<string>("stickyNotes/toggleStickyNote");
 export const updateStickyNote = createAction<StickyNote>("stickyNotes/updateStickyNote");
 export const updateStickyNotePosition = createAction<{ id: string; x: number; y: number }>("stickyNotes/updatePosition");
+export const updateFilteredStickyNotes = createAction<string>("stickyNotes/updateFilteredStickyNotes");

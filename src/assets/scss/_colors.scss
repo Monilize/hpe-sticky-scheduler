@@ -34,7 +34,11 @@
     // border colors
     &-border {
         &-high {
-            border: 1.5px solid var(--c-priority-high-l) !important;
+            border: 2px solid var(--c-priority-high-l) !important;
         }
     }
+}
+
+.bg-muted {
+    background-color: #ccc;
 }
